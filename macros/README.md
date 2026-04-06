@@ -204,15 +204,84 @@ Stage 3 upright : X 144..196, Y −172..−124, Z 49..102  (steel blue)
 | Green (75% transparent) | Stage 1 datum references |
 | Amber (solid) | Stage 2 high-pivot arm |
 | Steel blue (solid) | Stage 3 upright / carrier |
+| Spring green (solid) | Stage 4 shock & spring |
 
 ---
 
-### Stage 4 — Shock and spring *(planned)*
+### Stage 4 — Shock absorber & coil spring
 
-Will detail:
-- Upper shock mount on chassis / tower
-- Coil spring free length and rate calculation
-- Damper body envelope
+**Script:** `stage4_shock_spring.py`
+**Output document:** `Corner_ShockSpring_LHF_v01`
+
+Creates the shock absorber and coil spring geometry for the LHF corner,
+connecting the Stage 2 arm lower mount to a new chassis tower upper mount.
+
+**Shock axis**
+
+| Point | X | Y | Z |
+|-------|---|---|---|
+| Lower mount (Stage 2 arm boss) | 153 | −95.5 | 80.5 |
+| Upper mount (Stage 4 tower)    | 147 | −38   | 165  |
+| Extended length | | | ≈ 102 mm |
+| Stroke | | | 30 mm |
+| Angle from vertical (YZ) | | | ≈ 34° |
+
+**Sub-features**
+
+| Object | Description |
+|--------|-------------|
+| `ShockUpperBoss` | Ø8 × 12 mm boss at tower top; M4 clevis bore |
+| `ShockBody` | Ø12 mm outer tube (1.4 mm wall) from upper downward |
+| `ShockRod` | Ø5.5 mm solid rod from lower upward |
+| `CoilSpring` | Proper helical sweep: Ø18 OD, Ø1.8 wire, 65 mm free, 7 active coils |
+
+**Spring rate calculation (reported in FreeCAD console)**
+
+```
+Theoretical rate (spring steel) : ~1.6 N/mm
+At-wheel rate (MR = 0.71)       : ~0.8 N/mm
+Vehicle mass 3 kg / corner      : 7.4 N
+Estimated static sag            : ~9 mm at wheel  (tunable via SPRING_RATE / preload)
+Coil bind check                 : OK — 44 mm available vs 30 mm stroke
+```
+
+**Hardware notes**
+
+- Body and rod are dimensioned for a commercially available 1/10 scale
+  aluminium shock (e.g. 80–100 mm extended length, 30 mm stroke).
+- Spring wire Ø1.8 mm in spring steel; choose pre-load spacer for desired sag.
+- Upper clevis pin: M4, same standard as lower mount on the arm.
+
+---
+
+### Tire STL Importer
+
+**Script:** `import_tire_stl.py`
+
+Imports `STL/rc-ds2-tire-tread.stl` into the assembly preview document and
+positions it on the LHF wheel axis so it sits alongside all other parts.
+
+**How to use**
+
+1. Open (or run) `assemble_corner_to_chassis.py` first.
+2. Run `import_tire_stl.py`.  The tire is added to `RC_DS2_Assembly_Preview`.
+3. Toggle visibility with **Space** after selecting `Tire_LHF` in the model tree,
+   or right-click → **Toggle visibility**.
+
+Set `IMPORT_PODS = True` at the top of the script to also import the rim/pods
+STL on the same axis.
+
+**Positioning logic**
+
+The STL was exported from OpenSCAD with the wheel's revolution axis along Z.
+The macro rotates +90° about X (making Z → Y) and translates to the wheel axis:
+
+```
+Wheel axis centre : (165, −143, 75)
+Tire bottom Z     : 0 mm  (ground plane)
+Tire top Z        : 150 mm
+Tire Y span       : −174 .. −112 mm
+```
 
 ---
 

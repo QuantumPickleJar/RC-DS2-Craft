@@ -66,6 +66,7 @@ STAGE_DOC_NAMES = [
     "Corner_WheelEnd_LH_R1",        # Stage 1 — datum reference frame
     "Corner_HighPivotArm_LHF_v01",  # Stage 2 — high-pivot arm body
     "Corner_Upright_LHF_v01",       # Stage 3 — upright / carrier body
+    "Corner_ShockSpring_LHF_v01",   # Stage 4 — shock absorber & coil spring
 ]
 
 # Output assembly document name.
@@ -79,6 +80,7 @@ _STYLES = {
     "stage1_ref":     ((0.20, 0.80, 0.20),  75),  # green, mostly transparent
     "stage2_arm":     ((0.75, 0.55, 0.15),   0),  # amber
     "stage3_upright": ((0.20, 0.50, 0.80),   0),  # steel blue
+    "stage4_shock":   ((0.70, 0.85, 0.30),   0),  # spring green
     "unknown":        ((0.70, 0.70, 0.70),   0),  # fallback grey
 }
 
@@ -87,6 +89,7 @@ _DOC_STYLE_MAP = {
     "Corner_WheelEnd":      "stage1_ref",
     "Corner_HighPivotArm":  "stage2_arm",
     "Corner_Upright":       "stage3_upright",
+    "Corner_ShockSpring":   "stage4_shock",
     "RC_Chassis_Skeleton":  "chassis",
 }
 
