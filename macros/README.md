@@ -235,15 +235,13 @@ connecting the Stage 2 arm lower mount to a new chassis tower upper mount.
 | `ShockRod` | Ø5.5 mm solid rod from lower upward |
 | `CoilSpring` | Proper helical sweep: Ø18 OD, Ø1.8 wire, 65 mm free, 7 active coils |
 
-**Spring rate calculation (reported in FreeCAD console)**
+**Spring rate calculation (reported in FreeCAD console at runtime)**
 
-```
-Theoretical rate (spring steel) : ~1.6 N/mm
-At-wheel rate (MR = 0.71)       : ~0.8 N/mm
-Vehicle mass 3 kg / corner      : 7.4 N
-Estimated static sag            : ~9 mm at wheel  (tunable via SPRING_RATE / preload)
-Coil bind check                 : OK — 44 mm available vs 30 mm stroke
-```
+The console prints the full Wahl/DIN 2089 calculation for the chosen wire
+and coil geometry, including the motion-ratio-corrected at-wheel rate, static
+sag estimate, and coil-bind check.  Adjust `SPRING_WIRE_D`, `SPRING_OD`,
+`SPRING_ACTIVE_COILS`, and `SPRING_FREE_LENGTH` at the top of the script to
+tune the spring for your target sag and stroke.
 
 **Hardware notes**
 

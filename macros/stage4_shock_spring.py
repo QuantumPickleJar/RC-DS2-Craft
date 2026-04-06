@@ -144,11 +144,16 @@ MOTION_RATIO      =  0.71       # shock travel / wheel travel
 STATIC_SAG_MM     =  8.0       # target static sag
 
 # Wire shear modulus for spring steel (used for theoretical rate check)
-_G_STEEL_MPA      = 80_000.0   # MPa
+_G_STEEL_MPA = 80_000.0   # MPa (typical value for spring steel; e.g. EN 10270)
+
+# Standard coil spring rate formula (Wahl / DIN 2089):
+#   k = (G × d⁴) / (8 × D³ × n)
+# where d = wire diameter, D = mean coil diameter = 2 × SPRING_COIL_RADIUS,
+# n = number of active coils.  G in MPa, dimensions in mm → result in N/mm.
 _SPRING_RATE_CALC = (
     (_G_STEEL_MPA * (SPRING_WIRE_D ** 4))
     / (8.0 * (2.0 * SPRING_COIL_RADIUS) ** 3 * SPRING_ACTIVE_COILS)
-)  # N/mm  — theoretical value using spring steel; PETG would be ~0.07 N/mm
+)  # N/mm  — spring steel; a PETG prototype coil would be ~0.07 N/mm (E_shear ≈ 700 MPa)
 
 # =============================================================================
 # DOCUMENT SETUP
@@ -321,7 +326,11 @@ def build_spring(lower, direction):
             Part.makeCircle(SPRING_WIRE_D / 2.0, profile_centre, tangent_dir)
         )
 
-        coil_solid = Part.Wire([helix_wire]).makePipeShell([profile_circle], True, True)
+        coil_solid = Part.Wire([helix_wire]).makePipeShell(
+            [profile_circle],
+            True,   # make_solid: close the swept shell into a solid
+            True,   # is_frenet: use Frenet-Serret frame to keep profile perpendicular to spine
+        )
         App.Console.PrintMessage("  Spring: helical sweep succeeded.\n")
 
     except Exception as exc:

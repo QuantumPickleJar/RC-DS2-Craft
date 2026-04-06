@@ -109,12 +109,16 @@ def resolve_repo_root():
 
     # Try the macro file's own location if __file__ is defined.
     try:
+        # Stage 1: macro file path fallback
         macro_dir = os.path.dirname(os.path.abspath(__file__))
         candidate = os.path.dirname(macro_dir)
         if os.path.isdir(os.path.join(candidate, stl_sub)):
             return candidate
     except NameError:
-        pass
+        App.Console.PrintWarning(
+            "  Tire importer: __file__ is not defined (running from Macro Editor).\n"
+            "  Set REPO_ROOT at the top of the script if auto-detection fails.\n"
+        )
 
     return None
 
