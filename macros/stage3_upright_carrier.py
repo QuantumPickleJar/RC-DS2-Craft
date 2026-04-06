@@ -208,7 +208,7 @@ def make_centered_box(x_len, y_len, z_len, cx, cy, cz):
 
 
 def make_cyl_y(radius, length, x, y0, z):
-    """Cylinder with its axis along +Y, starting at y0."""
+    """Cylinder with its axis along +Y, starting at y0 and extending to y0+length."""
     return Part.makeCylinder(radius, length, App.Vector(x, y0, z), App.Vector(0, 1, 0))
 
 

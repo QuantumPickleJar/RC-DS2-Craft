@@ -190,10 +190,10 @@ apparent distance.  The positioner copies all shapes into one document so
 **Expected bounding boxes (LHF corner)**
 
 ```
-Chassis skeleton : centred near origin, ±165 mm in X, ±143 mm in Y
-Stage 1 datums  : X ≈ 165, Y ≈ −143, Z ≈ 75–101   (markers, mostly transparent)
-Stage 2 arm     : X 147–165, Y −143..−38, Z 75–97   (amber)
-Stage 3 upright : X 144–196, Y −172..−124, Z 49–102  (steel blue)
+Chassis skeleton : centred near origin, X −165..+165, Y −143..+143
+Stage 1 datums  : X 165..165, Y −143..−128, Z 75..101   (markers, mostly transparent)
+Stage 2 arm     : X 147..165, Y −143..−38, Z 75..97   (amber)
+Stage 3 upright : X 144..196, Y −172..−124, Z 49..102  (steel blue)
 ```
 
 **Colour coding in the assembly**

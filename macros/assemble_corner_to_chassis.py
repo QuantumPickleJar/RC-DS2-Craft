@@ -127,9 +127,8 @@ def _apply_style(obj, colour, transparency):
         pass
 
 
-def _bb_str(shape):
-    """Return a compact bounding-box string for console output."""
-    bb = shape.BoundBox
+def _bb_str(bb):
+    """Return a compact bounding-box string for a FreeCAD BoundBox."""
     return (
         f"X [{bb.XMin:+.1f} .. {bb.XMax:+.1f}]  "
         f"Y [{bb.YMin:+.1f} .. {bb.YMax:+.1f}]  "
@@ -294,7 +293,7 @@ def main():
 
     overall_bb = None
     for label, bb in bb_report:
-        App.Console.PrintMessage(f"  {label}:\n    {_bb_str(Part.makeBox(bb.XLength, bb.YLength, bb.ZLength, App.Vector(bb.XMin, bb.YMin, bb.ZMin)).BoundBox)}\n\n")
+        App.Console.PrintMessage(f"  {label}:\n    {_bb_str(bb)}\n\n")
         if overall_bb is None:
             overall_bb = bb
         else:
@@ -302,7 +301,7 @@ def main():
 
     if overall_bb:
         App.Console.PrintMessage(
-            f"  OVERALL:\n    {_bb_str(Part.makeBox(overall_bb.XLength, overall_bb.YLength, overall_bb.ZLength, App.Vector(overall_bb.XMin, overall_bb.YMin, overall_bb.ZMin)).BoundBox)}\n\n"
+            f"  OVERALL:\n    {_bb_str(overall_bb)}\n\n"
         )
 
     App.Console.PrintMessage("Expected corner anchor (LHF): X=165  Y=-143  Z=75\n")
