@@ -115,14 +115,95 @@ side for roll-centre tuning.
 
 ---
 
-### Stage 3 — Upright / carrier body *(planned)*
+### Stage 3 — Upright / carrier body
 
-Will detail:
-- Kingpin bearing seats (top and bottom)
-- Half-shaft through-bore and sealing land
-- Brake disc / hub register face
-- Ball-joint seats mating to Stage 2 carrier socket
-- Steering arm with tie-rod pickup
+**Script:** `stage3_upright_carrier.py`
+**Output document:** `Corner_Upright_LHF_v01`
+
+Creates the structural upright that receives the arm's socket boss as its
+kingpin and carries the wheel hub on its outboard spindle:
+
+- `Upright_LHF/Upright_LHF_v01` — fused upright solid (steel blue)
+- `References/REF_ArmSocketEntry` — red marker at top of kingpin bore
+
+**Kingpin pivot explained**
+
+The Stage 2 arm's Ø16 mm socket boss IS the kingpin post.  The upright slides
+over it via a Ø16.3 mm bore and steers by rotating about the Z axis.  An M5
+bolt passes through the arm boss bore (Ø5.25 mm) and captures the upright
+axially while allowing free steering rotation.
+
+**Upright sub-features**
+
+| Feature | Geometry | Key dimension |
+|---------|----------|---------------|
+| Carrier block | Box centred at wheel axis | 42 × 30 × 52 mm |
+| Kingpin bore | Ø16.3 mm Z-axis | Through full block height |
+| Kingpin bushing seats | Ø16.8 mm × 3 mm | Top and bottom faces |
+| Outboard spindle | Ø28 mm Y-axis protrusion | 14 mm long; tip Y = −172 |
+| Hub bore | Ø22 mm Y-axis | Through block + spindle |
+| Bearing seat | Ø32 mm × 8 mm recess | At spindle tip |
+| Sealing step | Ø25 mm × 3 mm pocket | At inboard face (Y = −128) |
+| Steering arm | Rectangular slab | X 159–196, Z 70–98, 8 mm thick |
+| Tie-rod pickup boss | Ø10 mm × 14 mm | At (190, −128, 95); M4 bore |
+
+**Bearing / hardware notes**
+
+- Hub bearing: 32 × 22 × 7 mm single-row deep-groove (e.g. 6004 / 61904)
+- Kingpin bushings: Ø16.8 × Ø16.3 × 3 mm PTFE rings, one at each face
+- Tie-rod clevis: M4, matching Stage 2 shock boss bore standard
+- Sealing land: 25 × 22 × 3 mm lip seal (or printed chamfer for mud use)
+
+---
+
+### Assembly Positioner
+
+**Script:** `assemble_corner_to_chassis.py`
+**Output document:** `RC_DS2_Assembly_Preview`
+
+Collects the chassis skeleton and all open corner-module stage documents into
+a single document so every part can be seen together in one 3D view.
+
+**Why parts appear far apart in separate documents**
+
+Each stage macro places shapes at their absolute global coordinates (e.g.
+front-left corner at X=165, Y=−143, Z=75).  When a single-part document is
+opened in isolation, FreeCAD's "Fit All" view zooms to that part's bounding
+box only, making it look as though it is sitting at the origin.  Opening the
+chassis skeleton alongside reveals a different bounding box — hence the
+apparent distance.  The positioner copies all shapes into one document so
+"Fit All" frames everything together correctly.
+
+**How to use**
+
+1. Run Stage 1, Stage 2, and Stage 3 macros so their documents are open in
+   the same FreeCAD session.
+2. (Optional) Set `REPO_ROOT` at the top of the script to the absolute path
+   of your repository clone.  The script will then open the chassis skeleton
+   from disk automatically.
+3. Run `assemble_corner_to_chassis.py`.  The script will:
+   - Open `RC_Chassis_Skeleton.FCStd` if it is not already open
+   - Copy all `Part::Feature` shapes from each stage document and the skeleton
+     into a new `RC_DS2_Assembly_Preview` document
+   - Print a bounding-box report for every source so positions can be verified
+
+**Expected bounding boxes (LHF corner)**
+
+```
+Chassis skeleton : centred near origin, ±165 mm in X, ±143 mm in Y
+Stage 1 datums  : X ≈ 165, Y ≈ −143, Z ≈ 75–101   (markers, mostly transparent)
+Stage 2 arm     : X 147–165, Y −143..−38, Z 75–97   (amber)
+Stage 3 upright : X 144–196, Y −172..−124, Z 49–102  (steel blue)
+```
+
+**Colour coding in the assembly**
+
+| Colour | Source |
+|--------|--------|
+| Grey (25% transparent) | Chassis skeleton |
+| Green (75% transparent) | Stage 1 datum references |
+| Amber (solid) | Stage 2 high-pivot arm |
+| Steel blue (solid) | Stage 3 upright / carrier |
 
 ---
 
