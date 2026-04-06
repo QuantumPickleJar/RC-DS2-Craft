@@ -44,7 +44,7 @@ LOWEST_HARDPOINT_Z = 64.0       # mm, minimum Z of any carrier component
 # Axle mount geometry (from skeleton macro)
 AXLE_X = WHEELBASE / 2.0                                    # 165.0 mm (front axle)
 AXLE_MOUNT_SETBACK = 18.0                                   # mm
-AXlE_PAD_CENTER_X = AXLE_X - AXLE_MOUNT_SETBACK            # 147.0 mm
+AXLE_PAD_CENTER_X = AXLE_X - AXLE_MOUNT_SETBACK             # 147.0 mm
 AXLE_SLOT_SPACING_Y = 72.0                                  # mm
 
 # =============================================================================
@@ -63,7 +63,7 @@ WHEEL_AXIS_Z = TIRE_OUTER_DIAMETER / 2.0                    # 75.0 mm
 
 # Chassis-side arm pivot axis (the pivot ribs engage the carrier mount pad slots
 # at Y = -(AXLE_SLOT_SPACING_Y / 2) for the left arm).
-CHASSIS_PIVOT_X = AXlE_PAD_CENTER_X                         # 147.0 mm
+CHASSIS_PIVOT_X = AXLE_PAD_CENTER_X                          # 147.0 mm
 CHASSIS_PIVOT_Y = -(AXLE_SLOT_SPACING_Y / 2.0)             # -36.0 mm
 CHASSIS_PIVOT_Z = CARRIER_MOUNT_Z                           # 94.0 mm
 
@@ -74,7 +74,7 @@ TIE_ROD_Z = WHEEL_AXIS_Z + 20.0
 
 # Shock lower mount  (placeholder; mid-span on arm)
 SHOCK_LOWER_X = CHASSIS_PIVOT_X + 6.0
-SHOCK_LOWER_Y = (CHASSIS_PIVOT_Y + WHEEL_AXIS_Y) / 2.0 - 5.0   # -94.5 mm
+SHOCK_LOWER_Y = (CHASSIS_PIVOT_Y + WHEEL_AXIS_Y) / 2.0 - 5.0   # midpoint -89.5, offset -5.0 → -94.5 mm
 SHOCK_LOWER_Z = (CHASSIS_PIVOT_Z + WHEEL_AXIS_Z) / 2.0 - 4.0   # 80.5 mm
 
 # Bump stop contact points  (placeholder)
