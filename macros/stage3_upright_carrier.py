@@ -402,7 +402,11 @@ def main():
     App.Console.PrintMessage(f"  Tire outer face Y : {WHEEL_AXIS_Y - TIRE_WIDTH / 2.0:.1f} mm\n")
     App.Console.PrintMessage(f"  Spindle tip Y     : {SPINDLE_TIP_Y:.1f} mm\n")
     App.Console.PrintMessage(f"  Gap (must be > 0) : {(WHEEL_AXIS_Y - TIRE_WIDTH / 2.0) - SPINDLE_TIP_Y:.1f} mm\n")
-    App.Console.PrintMessage("\nStage 3 complete. Run assemble_corner_to_chassis.py to preview all parts together.\n")
+    App.Console.PrintMessage(
+        "\nStage 3 complete. Run assemble_corner_to_chassis.py to preview all parts together.\n"
+        "  For the suspension sub-assembly (arm + shock), run:\n"
+        "    assemble_suspension.py\n"
+    )
 
     return doc, upright_obj
 

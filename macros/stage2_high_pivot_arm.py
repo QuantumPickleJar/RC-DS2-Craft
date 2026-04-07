@@ -446,7 +446,13 @@ def main():
     App.Console.PrintMessage(f"Shock bore  : {SHOCK_BORE_D:.1f} mm  (M4 nominal)\n")
     App.Console.PrintMessage(f"\nCarrier envelope check: {CARRIER_ENV_LENGTH:.0f} x {CARRIER_ENV_WIDTH:.0f} x {CARRIER_ENV_HEIGHT:.0f} mm\n")
     App.Console.PrintMessage(f"  Arm must remain inside this envelope throughout full suspension travel.\n")
-    App.Console.PrintMessage("\nStage 2 complete. Proceed to Stage 3 (Upright / carrier body).\n")
+    App.Console.PrintMessage(
+        "\nStage 2 complete. Proceed to Stage 3 (Upright / carrier body).\n"
+        "  To preview the arm + shock together before Stage 3, run:\n"
+        "    assemble_suspension.py\n"
+        "  For the full chassis preview, run:\n"
+        "    assemble_corner_to_chassis.py\n"
+    )
 
     return doc, arm_obj
 

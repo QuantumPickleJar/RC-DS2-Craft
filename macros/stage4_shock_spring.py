@@ -500,7 +500,10 @@ def main():
     App.Console.PrintMessage(f"  Vehicle mass   : {VEHICLE_MASS_KG:.1f} kg  → {VEHICLE_MASS_KG * 9.81 / 4:.2f} N / corner\n")
     App.Console.PrintMessage(f"  Static sag     : {VEHICLE_MASS_KG * 9.81 / 4 / spring_rate_at_wheel:.1f} mm at wheel  (target {STATIC_SAG_MM:.1f} mm at shock)\n")
     App.Console.PrintMessage(f"\nMotion ratio   : {MOTION_RATIO}  (shock travel / wheel travel)\n")
-    App.Console.PrintMessage("\nStage 4 complete. Run assemble_corner_to_chassis.py to update the preview.\n")
+    App.Console.PrintMessage(
+        "\nStage 4 complete. Run assemble_suspension.py to preview the arm + shock together,\n"
+        "  or run assemble_corner_to_chassis.py to update the full chassis preview.\n"
+    )
 
     return doc
 
