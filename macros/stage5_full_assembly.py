@@ -38,14 +38,32 @@
 #   ├─ Corner_RHF   — Stage 1–4 shapes, Y-mirrored
 #   ├─ Corner_LHR   — Stage 1–4 shapes, X-mirrored
 #   ├─ Corner_RHR   — Stage 1–4 shapes, XY-mirrored
+#   ├─ Towers       — Chassis shock towers (one per corner, mirrored)
+#   │     Tower_LHF, Tower_RHF, Tower_LHR, Tower_RHR
 #   ├─ Wheel_LHF    — Tire_LHF + Rim_LHF
 #   ├─ Wheel_RHF    — Tire_RHF + Rim_RHF
 #   ├─ Wheel_LHR    — Tire_LHR + Rim_LHR
 #   └─ Wheel_RHR    — Tire_RHR + Rim_RHR
 #
+# CHASSIS SHOCK TOWER GEOMETRY
+# ----------------------------
+# Each tower is a two-piece printable rib:
+#
+#   Base plate  28 × 20 × 6 mm  — sits on the carrier mount plane (Z = 94 mm)
+#                                  bolt pattern aligns with chassis pad
+#   Rib         14 ×  8 mm section, rising Z = 100 → 165 mm
+#               centred on the upper shock-mount axis (X = 147, Y = ±38 mm)
+#
+# The upper clevis pin hole (M4, Ø4.4 mm) passes through the rib in Y at
+# Z = SHOCK_UPPER_Z = 165 mm and X = SHOCK_UPPER_X = 147 mm.
+#
+# Tower placement for each corner uses the same mirror logic as the corner
+# geometry: Y-flip for RH sides, X-flip for rear axle.
+#
 # CONFIGURATION
 # =============================================================================
 
+import math
 import os
 
 try:
@@ -106,6 +124,27 @@ _MIRROR_Y  = (App.Vector(0, 0, 0), App.Vector(0, 1, 0))   # XZ plane
 _MIRROR_X  = (App.Vector(0, 0, 0), App.Vector(1, 0, 0))   # YZ plane
 
 # =============================================================================
+# CHASSIS SHOCK TOWER PARAMETERS
+# (match Stage 4 upper-mount coordinates and assemble_suspension stub)
+# =============================================================================
+
+# Upper shock-mount point — identical to Stage 4 SHOCK_UPPER_* values.
+SHOCK_UPPER_X =  147.0   # mm — above AXLE_PAD_CENTER_X
+SHOCK_UPPER_Y =  -38.0   # mm — chassis pivot Y (LH side; RH = +38)
+SHOCK_UPPER_Z =  165.0   # mm — tower top / upper clevis pin Z
+
+# Carrier mount plane (shared with all stage macros).
+TOWER_BASE_Z    =  94.0   # mm — Z of chassis carrier mount plane
+TOWER_BASE_H    =   6.0   # mm — base-plate thickness
+TOWER_BASE_LEN  =  28.0   # mm in X, centred on SHOCK_UPPER_X
+TOWER_BASE_WID  =  20.0   # mm in Y, centred on SHOCK_UPPER_Y (LH)
+
+# Rib dimensions
+TOWER_RIB_LEN   =  14.0   # mm in X
+TOWER_RIB_WID   =   8.0   # mm in Y
+TOWER_CLEVIS_D  =   4.4   # mm — M4 clearance bore for upper clevis pin (Y-axis)
+
+# =============================================================================
 # VISUAL STYLES  (R, G, B), transparency 0-100
 # =============================================================================
 
@@ -116,6 +155,7 @@ _STYLES = {
     "stage2_arm":     ((0.75, 0.55, 0.15),  0),
     "stage3_upright": ((0.20, 0.50, 0.80),  0),
     "stage4_shock":   ((0.70, 0.85, 0.30),  0),
+    "tower":          ((0.55, 0.60, 0.65), 30),   # grey, slightly transparent
     "tire":           ((0.10, 0.10, 0.10),  0),
     "rim":            ((0.82, 0.84, 0.87),  0),
     "unknown":        ((0.70, 0.70, 0.70),  0),
@@ -321,6 +361,79 @@ def collect_corner_shapes(asm_doc):
 
 
 # =============================================================================
+# CHASSIS SHOCK TOWERS (one per corner)
+# =============================================================================
+
+def _build_lhf_tower():
+    """Return a single fused solid for the LHF chassis shock tower.
+
+    Geometry (all coordinates for the LH side, negative Y):
+      Base plate : TOWER_BASE_Z .. TOWER_BASE_Z + TOWER_BASE_H
+      Rib        : (TOWER_BASE_Z + TOWER_BASE_H) .. SHOCK_UPPER_Z
+      Clevis bore: Ø4.4 mm through the rib in Y at (SHOCK_UPPER_X, SHOCK_UPPER_Z)
+    """
+    rib_z0 = TOWER_BASE_Z + TOWER_BASE_H
+    rib_h  = SHOCK_UPPER_Z - rib_z0
+
+    base = Part.makeBox(
+        TOWER_BASE_LEN, TOWER_BASE_WID, TOWER_BASE_H,
+        App.Vector(
+            SHOCK_UPPER_X - TOWER_BASE_LEN / 2.0,
+            SHOCK_UPPER_Y - TOWER_BASE_WID / 2.0,
+            TOWER_BASE_Z,
+        ),
+    )
+
+    rib = Part.makeBox(
+        TOWER_RIB_LEN, TOWER_RIB_WID, rib_h,
+        App.Vector(
+            SHOCK_UPPER_X - TOWER_RIB_LEN / 2.0,
+            SHOCK_UPPER_Y - TOWER_RIB_WID / 2.0,
+            rib_z0,
+        ),
+    )
+
+    # M4 clevis bore: through the rib in the Y direction at the upper mount Z.
+    # Extend ±1 mm beyond the rib faces for clean Boolean subtraction.
+    bore_len  = TOWER_RIB_WID + 2.0
+    bore_dir  = App.Vector(0, 1, 0)
+    bore_start = App.Vector(
+        SHOCK_UPPER_X,
+        SHOCK_UPPER_Y - TOWER_RIB_WID / 2.0 - 1.0,
+        SHOCK_UPPER_Z,
+    )
+    clevis_bore = Part.makeCylinder(TOWER_CLEVIS_D / 2.0, bore_len, bore_start, bore_dir)
+
+    tower = base.fuse(rib).removeSplitter()
+    tower = tower.cut(clevis_bore).removeSplitter()
+    return tower
+
+
+def collect_shock_towers(asm_doc):
+    """Build the LHF chassis shock tower and mirror it to all four corners."""
+    grp = add_group(asm_doc, "Towers")
+    colour, transparency = _STYLES["tower"]
+
+    lhf_tower = _build_lhf_tower()
+
+    corner_mirrors = {
+        "LHF": [],
+        "RHF": [_MIRROR_Y],
+        "LHR": [_MIRROR_X],
+        "RHR": [_MIRROR_Y, _MIRROR_X],
+    }
+
+    for tag, mirrors in corner_mirrors.items():
+        shape = lhf_tower.copy()
+        for m in mirrors:
+            shape = mirror_shape(shape, m)
+        obj = add_shape(asm_doc, f"Tower_{tag}", shape, grp)
+        apply_style(obj, colour, transparency)
+
+    App.Console.PrintMessage("  Shock towers placed   : LHF  RHF  LHR  RHR\n")
+
+
+# =============================================================================
 # WHEEL MESHES (tire + rim × 4 corners)
 # =============================================================================
 
@@ -407,6 +520,9 @@ def main():
     App.Console.PrintMessage("\n[ Corner geometry — Stages 1-4 ]\n")
     collect_corner_shapes(asm_doc)
 
+    App.Console.PrintMessage("\n[ Chassis shock towers ]\n")
+    collect_shock_towers(asm_doc)
+
     App.Console.PrintMessage("\n[ Wheel meshes — tire + rim × 4 ]\n")
     collect_wheel_meshes(repo_root, asm_doc)
 
@@ -442,6 +558,7 @@ def main():
         "  Chassis       — skeleton rails, pods, carrier pads\n"
         "  BodyPods      — sealed electronics + buoyancy pod system\n"
         "  Corner_LHF/RHF/LHR/RHR — arm, upright, shock, spring\n"
+        "  Towers        — chassis shock towers (base plate + rib + M4 clevis bore)\n"
         "  Wheel_LHF/RHF/LHR/RHR  — tire + beadlock rim mesh\n"
     )
     App.Console.PrintMessage("Full vehicle assembly complete.\n")

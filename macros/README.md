@@ -252,42 +252,123 @@ tune the spring for your target sag and stroke.
 
 ---
 
-### Tire STL Importer
+### Wheel Importer
 
-**Script:** `import_tire_stl.py`
+**Script:** `import_wheel.py`  *(supersedes `import_tire_stl.py`)*
 
-Imports `STL/rc-ds2-tire-tread.stl` into the assembly preview document and
-positions it on the LHF wheel axis so it sits alongside all other parts.
+Imports both the tire and rim STL meshes into the assembly preview document and
+positions them on the LHF wheel axis so they sit alongside all other parts.
 
 **How to use**
 
 1. Open (or run) `assemble_corner_to_chassis.py` first.
-2. Run `import_tire_stl.py`.  The tire is added to `RC_DS2_Assembly_Preview`.
-3. Toggle visibility with **Space** after selecting `Tire_LHF` in the model tree,
-   or right-click → **Toggle visibility**.
-
-Set `IMPORT_PODS = True` at the top of the script to also import the rim/pods
-STL on the same axis.
+2. Run `import_wheel.py`.  Two mesh objects are added to `RC_DS2_Assembly_Preview`:
+   - `Tire_LHF` — near-black TPU tread
+   - `Rim_LHF`  — light silver PETG beadlock rim
+3. Toggle visibility with **Space** after selecting either object in the model tree.
 
 **Positioning logic**
 
-The STL was exported from OpenSCAD with the wheel's revolution axis along Z.
-The macro rotates +90° about X (making Z → Y) and translates to the wheel axis:
+Both STL files are exported from OpenSCAD with the wheel's revolution axis along Z
+and the cross-section centred at the XY origin.  The macro applies an identical
+placement to both:
+
+```
+Step 1 — rotate +90° about X  (maps old Z → +Y, aligning revolution axis with assembly Y)
+Step 2 — translate to (165, −143, 75)  (LHF wheel axis centre)
+```
 
 ```
 Wheel axis centre : (165, −143, 75)
-Tire bottom Z     : 0 mm  (ground plane)
+Tire bottom Z     :   0 mm  (ground plane)
 Tire top Z        : 150 mm
-Tire Y span       : −174 .. −112 mm
+Tire / rim Y span : −174 .. −112 mm
+Rim barrel Ø      : 109.4 mm  (bead seat Ø 110 − 0.6 mm fit)
 ```
 
 ---
 
-### Stage 5 — Mirroring and full-chassis assembly *(planned)*
+### Suspension Assembler
 
-- Mirror LHF corner to RHF (Y = 0 symmetry)
-- Replicate front corners at rear (X sign flip, rear axle X = −165)
-- Load into chassis skeleton document as external references
+**Script:** `assemble_suspension.py`
+**Output document:** `Suspension_LHF_v01`
+
+Collects the Stage-2 arm and Stage-4 shock/spring into a focused suspension
+sub-assembly and annotates the shock mount points with coloured sphere markers
+and a placeholder chassis tower stub.
+
+**Groups in output document**
+
+| Group | Contents |
+|-------|----------|
+| `Arm_Stage2`  | Shapes from `Corner_HighPivotArm_LHF_v01` |
+| `Shock_Stage4` | Shapes from `Corner_ShockSpring_LHF_v01` |
+| `MountPoints` | Ø8 mm sphere markers at lower (orange) and upper (cyan) mount points |
+| `TowerStub`   | Placeholder base plate + rib (same geometry as Stage 5 tower) |
+
+**Shock mount coordinates**
+
+| Point | X | Y | Z |
+|-------|---|---|---|
+| Lower (arm boss) | 153 | −95.5 | 80.5 |
+| Upper (tower boss) | 147 | −38 | 165 |
+
+**Console output**
+
+Prints shock axis length, angle from vertical, tower dimensions, and full
+M4 pin / spring specification.
+
+---
+
+### Stage 5 — Full vehicle assembly (all four corners)
+
+**Script:** `stage5_full_assembly.py`
+**Output document:** `RC_DS2_Full_Assembly_v01`
+
+Mirrors the LHF corner geometry (Stages 1–4) to all four wheel positions, adds
+the chassis skeleton, sealed body pods, chassis shock towers, and tire + rim
+meshes to produce a single full-vehicle document.
+
+**How to use**
+
+1. Run Stage 1–4 macros so their documents are open in the same FreeCAD session
+   (the script warns about any that are missing but continues gracefully).
+2. (Optional) Set `REPO_ROOT` at the top of the script to your repository root.
+3. Run `stage5_full_assembly.py`.
+
+**Corner positions**
+
+| Corner | X | Y | Z | Mirror from LHF |
+|--------|---|---|---|-----------------|
+| LHF | +165 | −143 | 75 | source |
+| RHF | +165 | +143 | 75 | Y-mirror |
+| LHR | −165 | −143 | 75 | X-mirror |
+| RHR | −165 | +143 | 75 | XY-mirror |
+
+**Document groups**
+
+| Group | Contents |
+|-------|----------|
+| `Chassis`         | Chassis skeleton shapes from `RC_Chassis_Skeleton.FCStd` |
+| `BodyPods`        | Body pod mesh at origin |
+| `Corner_LHF/RHF/LHR/RHR` | Stage 1–4 arm, upright, shock, spring shapes |
+| `Towers`          | Chassis shock towers × 4 (mirrored); base plate + rib + M4 clevis bore |
+| `Wheel_LHF/RHF/LHR/RHR`  | Tire + rim STL meshes at each wheel position |
+
+**Chassis shock tower geometry**
+
+| Feature | Dimension |
+|---------|-----------|
+| Base plate | 28 × 20 × 6 mm at Z = 94 mm |
+| Rib section | 14 × 8 mm, Z = 100 → 165 mm |
+| Upper clevis bore | Ø4.4 mm (M4) through rib in Y at Z = 165 mm |
+
+**Mirroring note**
+
+Stage macros encode shape positions as absolute world-space vertex coordinates;
+the FreeCAD `Placement` stays at identity.  `Part.Shape.mirror(point, normal)`
+maps these shapes to the remaining three corners without any Placement
+arithmetic.
 
 ---
 
