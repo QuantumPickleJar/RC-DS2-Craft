@@ -363,6 +363,23 @@ meshes to produce a single full-vehicle document.
 | Rib section | 14 × 8 mm, Z = 100 → 165 mm |
 | Upper clevis bore | Ø4.4 mm (M4) through rib in Y at Z = 165 mm |
 
+**Wheel STL orientation and rotation**
+
+Both STL files were exported from OpenSCAD with the revolution axis along Z and
+the cross-section centred at the origin.  The outer (outboard) face of the rim
+is at SCAD Z = +31 mm; the inner (inboard) face is at Z = −31 mm.
+
+After rotating about X and translating to each wheel axis, the outer face must
+point outboard:
+
+| Corner | Y at wheel axis | Outboard direction | Rotation about X |
+|--------|-----------------|-------------------|-----------------|
+| LHF / LHR | −143 mm | −Y | **+90°** — SCAD +Z → FreeCAD −Y |
+| RHF / RHR | +143 mm | +Y | **−90°** — SCAD +Z → FreeCAD +Y |
+
+Applying the same +90° to all four corners would mount the RH-side rim
+backwards (inner face outboard, outer face inboard).
+
 **Mirroring note**
 
 Stage macros encode shape positions as absolute world-space vertex coordinates;

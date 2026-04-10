@@ -456,13 +456,21 @@ def collect_wheel_meshes(repo_root, asm_doc):
         if not os.path.isfile(tire_path) and not os.path.isfile(rim_path):
             return
 
-    # Both STL files are in the same native frame: revolution axis = Z,
-    # centred at origin.  Rotating +90° about X aligns the revolution axis
-    # with the assembly's wheel axis (Y).  The translation then places the
-    # centre at each wheel position.
-    rotation = App.Rotation(App.Vector(1, 0, 0), 90)
+    # Both STL files share the same native frame: revolution axis = Z, centred
+    # at origin.  Rotating ±90° about X maps the revolution axis to the
+    # assembly's wheel axis (Y) and orients the outer face outboard:
+    #
+    #   Left-hand corners  (Y < 0, outboard = −Y): rotate +90°
+    #     SCAD +Z → FreeCAD −Y  (outer face goes outboard)
+    #   Right-hand corners (Y > 0, outboard = +Y): rotate −90°
+    #     SCAD +Z → FreeCAD +Y  (outer face goes outboard)
+    #
+    # Using the same rotation for all four corners would mount the RH-side
+    # rim backwards (inner face outboard, outer face inboard).
 
     for tag, translation in _WHEEL_POSITIONS.items():
+        rotation_angle = 90 if translation.y < 0 else -90
+        rotation = App.Rotation(App.Vector(1, 0, 0), rotation_angle)
         grp = add_group(asm_doc, f"Wheel_{tag}")
 
         for (stl_path, obj_name, style_key) in (
